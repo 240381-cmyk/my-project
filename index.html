@@ -25,19 +25,20 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
     import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCTTcspjJ05PpZOFGVAZHrTq5BX_tTPQjc",
-      authDomain: "dan123-1fcc9.firebaseapp.com",
-      projectId: "dan123-1fcc9",
-      storageBucket: "dan123-1fcc9.firebasestorage.app",
-      messagingSenderId: "430988558583",
-      appId: "1:430988558583:web:58420b11df7034a5df13f2",
-      measurementId: "G-M309376PCW"
-    };
+    onst firebaseConfig = {
+  apiKey: "AIzaSyCTTcspjJ05PpZOFGVAZHrTq5BX_tTPQjc",
+  authDomain: "dan123-1fcc9.firebaseapp.com",
+  projectId: "dan123-1fcc9",
+  storageBucket: "dan123-1fcc9.firebasestorage.app",
+  messagingSenderId: "430988558583",
+  appId: "1:430988558583:web:58420b11df7034a5df13f2",
+  measurementId: "G-M309376PCW"
+};
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+    
     document.getElementById("feedbackform").addEventListener("submit", async (e) => {
       e.preventDefault();
 
