@@ -2,14 +2,79 @@ HTML
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Облачная практика</title>
-</head>
-<body>
-<h1>Проект успешно запущен в облаке!</h1>
-<hr>
-<p>Работу выполнил студент: <strong>Федоренко Даниил</strong></p>
-<p>Группа: <strong>ПО-242</strong></p>
-<p>Тип облака: <strong>PaaS (GitHub Pages)</strong></p>
+  <meta charset="UTF-8">
+  <title>Облачный проект</title>
+  <style>
+    body { font-family: sans-serif; display: flex; justify-content: center; padding: 50px; background-color: #f4f4f9; }
+.form-container { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 300px; }
+input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+button { width: 100%; padding: 10px; background: #f4b400; border: none; color: white; font-weight: bold; cursor: pointer; border-radius: 5px; }
+button:hover { background: #dfa400; }
+  </style>
+  <head>
+    <body>
+
+    <div class="form-container">
+      <h3>Отправить заявку</h3>
+      <form id="feedbackform">
+        <input type="text" id="UserName" placeholder="Даниил" required>
+        <input type="email" id="UserEmail" placeholder="240381@turan-edu.kz" required>
+        <button type="sumbit">Отправить в облоко</button>
+    </form>
+    </div>
+      <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import {getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        const firebaseConfig = {
+  apiKey: "AIzaSyCTTcspjJ05PpZOFGVAZHrTq5BX_tTPQjc",
+  authDomain: "dan123-1fcc9.firebaseapp.com",
+  projectId: "dan123-1fcc9",
+  storageBucket: "dan123-1fcc9.firebasestorage.app",
+  messagingSenderId: "430988558583",
+  appId: "1:430988558583:web:58420b11df7034a5df13f2",
+  measurementId: "G-M309376PCW"
+};
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        document.getElementById("feedbackForm").addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const nameInput = document.getElementById("userName").value;
+          const emailInput = document.getElementById("userEmail").value;
+
+          try {
+
+            await addDoc(collection(db, "requests"), {
+              name: nameInput,
+              email: emailInput,
+              timestamp: new Date()
+          });
+          alert("Готово! Данные сохранены в Firebase.");
+          document.getElementById("feedbackForm").reset();
+      } catch (error) {
+          console.error("Ошибка записи: ", error);
+          alert("Ошибка при отправке.");
+      }
+    });
+</script>
 </body>
 </html>
+            
+              
+
+          
+
+      
+
+          
+          
+          
+
+
+    
+    
+
+    
+ 
+
