@@ -2,48 +2,358 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Облачный проект</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Realtime Cloud App | BaaS Platform</title>
   <style>
-    body { font-family: "Inter", sans-serif; background: #f4f7f6; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-    .form-container { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 300px; margin-bottom: 20px; }
-    .container { width: 100%; max-width: 500px; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
-    input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-    button { width: 100%; padding: 10px; background: #f4b400; border: none; color: white; font-weight: bold; cursor: pointer; border-radius: 5px; }
-    button.mainBtn { background: #007bff; color: white; border: none; padding: 12px; border-radius: 6px; width: 100%; font-weight: 600; cursor: pointer; transition: 0.3s; }
-    button:hover { background: #dfa400; }
-    .post { background: #fff; border: 1px solid #eaeaea; padding: 15px; margin-top: 15px; border-radius: 8px; width: 100%; max-width: 500px; position: relative; }
-    .like-btn { cursor: pointer; border: none; background: #f8f9fa; padding: 5px 12px; border-radius: 20px; font-size: 14px; transition: 0.2s; }
-    .like-btn:hover { background: #e2e6ea; }
-    .time { font-size: 11px; color: #999; float: right; }
-    h3 { margin-top: 0; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      align-items: start;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Карточки */
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card h2 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 24px;
+    }
+
+    .card h3 {
+      color: #667eea;
+      margin-bottom: 20px;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 25px;
+      font-size: 14px;
+      border-left: 3px solid #667eea;
+      padding-left: 12px;
+    }
+
+    /* Формы */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #555;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-size: 14px;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    button {
+      width: 100%;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Лента */
+    .feed-section {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+
+    .feed-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .feed-header h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .live-badge {
+      background: #10b981;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    .stats {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      color: #666;
+      text-align: center;
+    }
+
+    .post {
+      background: #f8f9fa;
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 15px;
+      transition: all 0.3s;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .post:hover {
+      background: #f0f0f0;
+      transform: translateX(5px);
+    }
+
+    .post-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .post-name {
+      font-weight: 700;
+      color: #333;
+      font-size: 16px;
+    }
+
+    .post-time {
+      font-size: 11px;
+      color: #999;
+    }
+
+    .post-email {
+      color: #667eea;
+      font-size: 13px;
+      margin-bottom: 12px;
+      word-break: break-all;
+    }
+
+    .post-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .like-btn {
+      background: white;
+      border: 2px solid #e0e0e0;
+      padding: 8px 16px;
+      border-radius: 40px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+      width: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .like-btn:hover {
+      background: #ff4757;
+      border-color: #ff4757;
+      color: white;
+      transform: scale(1.05);
+    }
+
+    .like-count {
+      background: #667eea;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+    }
+
+    .alert {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+
+    hr {
+      margin: 20px 0;
+      border: none;
+      border-top: 1px solid #e0e0e0;
+    }
   </style>
 </head>
-
 <body>
-  <div class="form-container">
-    <h3>Отправить заявку</h3>
-    <form id="feedbackform">
-      <input type="text" id="UserName" placeholder="Введите имя" required>
-      <input type="email" id="UserEmail" placeholder="Введите Mail" required>
-      <button type="submit">Отправить в облако</button>
-    </form>
-  </div>
-
   <div class="container">
-    <h3>Панель управления данными</h3>
-    <input type="text" id="name" placeholder="Имя профиля">
-    <input type="email" id="email" placeholder="Рабочий Email">
-    <button id="mainBtn" class="mainBtn">Опубликовать в облако</button>
-  </div>
+    <!-- Левая колонка - Формы -->
+    <div>
+      <div class="card">
+        <h2>📝 Отправить заявку</h2>
+        <div class="subtitle">Быстрая публикация в облако</div>
+        <form id="quickForm">
+          <div class="form-group">
+            <label>👤 Имя пользователя</label>
+            <input type="text" id="quickName" placeholder="Введите ваше имя" required>
+          </div>
+          <div class="form-group">
+            <label>📧 Email адрес</label>
+            <input type="email" id="quickEmail" placeholder="example@mail.com" required>
+          </div>
+          <button type="submit">🚀 Отправить в облако</button>
+        </form>
+      </div>
 
-  <div id="feed" style="width: 100%; max-width: 500px;"></div>
+      <div class="card" style="margin-top: 30px;">
+        <h2>⚙️ Панель управления</h2>
+        <div class="subtitle">Расширенная публикация с валидацией</div>
+        <div class="form-group">
+          <label>👤 Имя профиля</label>
+          <input type="text" id="adminName" placeholder="Введите имя">
+        </div>
+        <div class="form-group">
+          <label>📧 Рабочий Email</label>
+          <input type="email" id="adminEmail" placeholder="work@company.com">
+        </div>
+        <button id="publishBtn">📤 Опубликовать в облако</button>
+        
+        <hr>
+        
+        <div class="alert">
+          🔒 <strong>Security Rules активны</strong><br>
+          • Только create/update<br>
+          • Валидация email и name<br>
+          • DELETE запрещен
+        </div>
+      </div>
+    </div>
+
+    <!-- Правая колонка - Живая лента -->
+    <div class="feed-section">
+      <div class="feed-header">
+        <h2>📡 Живая лента</h2>
+        <span class="live-badge">● LIVE</span>
+      </div>
+      <div class="stats" id="stats">
+        Загрузка данных...
+      </div>
+      <div id="feed">
+        <div class="empty-state">
+          ⏳ Ожидание данных...
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script type="module">
+    // Импорты Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, updateDoc, doc, increment } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-analytics.js";
-
-    // Firebase конфигурация
+    import { 
+      getFirestore, 
+      collection, 
+      addDoc, 
+      query, 
+      orderBy, 
+      onSnapshot, 
+      serverTimestamp, 
+      updateDoc, 
+      doc, 
+      increment 
+    } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+    
+    // Конфигурация Firebase (используем вашу)
     const firebaseConfig = {
       apiKey: "AIzaSyCTTcspjJ05PpZOFGVAZHrTq5BX_tTPQjc",
       authDomain: "dan123-1fcc9.firebaseapp.com",
@@ -54,89 +364,158 @@
       measurementId: "G-M309376PCW"
     };
 
-    // Initialize Firebase
+    // Инициализация
     const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
     const db = getFirestore(app);
+    
+    console.log("✅ Firebase инициализирован");
+    console.log("🔐 Security Rules активны: DELETE запрещен, UPDATE только likes");
 
-    // Метод для лайков
+    // Глобальная функция для лайков (атомарное обновление)
     window.processLike = async (id) => {
       const docRef = doc(db, "requests", id);
       try {
         await updateDoc(docRef, { likes: increment(1) });
-      } catch (e) { 
-        console.error("Validation Error:", e.message); 
+        console.log(`👍 Лайк поставлен документу: ${id}`);
+      } catch (e) {
+        console.error("❌ Ошибка при лайке:", e.message);
+        alert("Ошибка: " + e.message);
       }
     };
 
-    // Обработка формы отправки заявки
-    document.getElementById("feedbackform").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const nameInput = document.getElementById("UserName").value;
-      const emailInput = document.getElementById("UserEmail").value;
-
+    // Функция добавления записи
+    async function addRequest(name, email) {
+      if (!name || !email) {
+        alert("Заполните все поля!");
+        return false;
+      }
+      
       try {
         await addDoc(collection(db, "requests"), {
-          name: nameInput,
-          email: emailInput,
+          name: name.trim(),
+          email: email.trim(),
           likes: 0,
           timestamp: serverTimestamp()
         });
-        alert("Готово! Данные сохранены в Firebase.");
-        document.getElementById("feedbackform").reset();
+        console.log("✅ Запись добавлена:", { name, email });
+        return true;
       } catch (error) {
-        console.error("Ошибка записи: ", error);
-        alert("Ошибка при отправке.");
+        console.error("❌ Ошибка записи:", error);
+        alert(`Ошибка: ${error.message}`);
+        return false;
+      }
+    }
+
+    // Обработка быстрой формы
+    document.getElementById("quickForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("quickName").value;
+      const email = document.getElementById("quickEmail").value;
+      
+      const success = await addRequest(name, email);
+      if (success) {
+        document.getElementById("quickForm").reset();
       }
     });
 
-    // Метод для публикации из панели управления
-    document.getElementById("mainBtn").onclick = async () => {
-      const btn = document.getElementById("mainBtn");
+    // Обработка панели управления
+    document.getElementById("publishBtn").onclick = async () => {
+      const btn = document.getElementById("publishBtn");
       btn.disabled = true;
-      try {
-        await addDoc(collection(db, "requests"), {
-          name: document.getElementById("name").value,
-          email: document.getElementById("email").value,
-          likes: 0,
-          timestamp: serverTimestamp()
-        });
-        alert("Готово! Данные сохранены в Firebase.");
-        document.getElementById("name").value = "";
-        document.getElementById("email").value = "";
-      } catch (e) { 
-        alert("Ошибка безопасности: Данные отклонены сервером."); 
-        console.error(e);
+      btn.textContent = "⏳ Публикация...";
+      
+      const name = document.getElementById("adminName").value;
+      const email = document.getElementById("adminEmail").value;
+      
+      const success = await addRequest(name, email);
+      if (success) {
+        document.getElementById("adminName").value = "";
+        document.getElementById("adminEmail").value = "";
       }
+      
       btn.disabled = false;
+      btn.textContent = "📤 Опубликовать в облако";
     };
 
-    // Метод: REAL-TIME СИНХРОНИЗАЦИЯ
+    // REAL-TIME СИНХРОНИЗАЦИЯ
     const q = query(collection(db, "requests"), orderBy("timestamp", "desc"));
+    
+    let lastUpdateTime = new Date();
+    
     onSnapshot(q, (snapshot) => {
       const feed = document.getElementById('feed');
+      const stats = document.getElementById('stats');
+      
+      const postsCount = snapshot.size;
+      stats.innerHTML = `📊 Всего записей: ${postsCount} | 🔄 Обновлено: ${new Date().toLocaleTimeString()}`;
+      
+      if (snapshot.empty) {
+        feed.innerHTML = '<div class="empty-state">📭 Пока нет записей. Создайте первую!</div>';
+        return;
+      }
+      
       feed.innerHTML = "";
+      
       snapshot.forEach((doc) => {
         const data = doc.data();
-        const timeString = data.timestamp && data.timestamp.toDate ? data.timestamp.toDate().toLocaleTimeString() : '...';
+        const docId = doc.id;
+        
+        // Безопасное получение времени
+        let timeString = "только что";
+        if (data.timestamp && data.timestamp.toDate) {
+          const date = data.timestamp.toDate();
+          timeString = date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+        
+        // Экранирование для безопасности
+        const name = data.name || "Аноним";
+        const email = data.email || "email не указан";
+        const likes = data.likes || 0;
+        
         feed.innerHTML += `
-          <div class="post">
-            <span class="time">${timeString}</span>
-            <b>${data.name || 'Без имени'}</b>
-            <p style="margin: 5px 0;">${data.email || 'Нет email'}</p>
-            <button class="like-btn" onclick="processLike('${doc.id}')">👍 ${data.likes || 0}</button>
+          <div class="post" data-id="${docId}">
+            <div class="post-header">
+              <span class="post-name">${escapeHtml(name)}</span>
+              <span class="post-time">🕐 ${timeString}</span>
+            </div>
+            <div class="post-email">📧 ${escapeHtml(email)}</div>
+            <div class="post-footer">
+              <button class="like-btn" onclick="processLike('${docId}')">
+                ❤️ Лайк <span class="like-count">${likes}</span>
+              </button>
+            </div>
           </div>
         `;
       });
+      
+      lastUpdateTime = new Date();
+      console.log(`🔄 Лента обновлена: ${postsCount} записей`);
+    }, (error) => {
+      console.error("❌ Ошибка onSnapshot:", error);
+      document.getElementById('feed').innerHTML = `
+        <div class="empty-state">
+          ⚠️ Ошибка подключения: ${error.message}<br>
+          Проверьте интернет-соединение и правила безопасности
+        </div>
+      `;
     });
+    
+    // Функция для безопасного экранирования HTML
+    function escapeHtml(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+    
+    // Тест на взлом (инструкция в консоль)
+    console.log("%c🔒 ТЕСТ НА БЕЗОПАСНОСТЬ", "color: #ff4757; font-size: 16px; font-weight: bold");
+    console.log("%cПопробуйте выполнить в консоли:", "color: #667eea; font-size: 12px");
+    console.log("%c// Попытка удаления (ДОЛЖНА БЫТЬ ЗАБЛОКИРОВАНА правилами)", "color: #999");
+    console.log("%cconst testDoc = doc(db, 'requests', 'test-id'); await deleteDoc(testDoc);", "color: #666");
+    console.log("%c// Попытка изменения текста (ДОЛЖНА БЫТЬ ЗАБЛОКИРОВАНА)", "color: #999");
+    console.log("%cawait updateDoc(doc(db, 'requests', 'some-id'), { name: 'hacked' });", "color: #666");
+    console.log("%c✅ Разрешено только: добавление записей и увеличение лайков", "color: #10b981");
   </script>
 </body>
 </html>
-
-
-    
-    
-
-    
- 
-
