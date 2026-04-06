@@ -278,6 +278,12 @@
       color: #991b1b;
     }
 
+    .warning-alert {
+      background: #fed7aa;
+      border-left: 4px solid #ea580c;
+      color: #9a3412;
+    }
+
     hr {
       margin: 20px 0;
       border: none;
@@ -366,6 +372,16 @@
       font-family: monospace;
       font-size: 12px;
     }
+
+    .domain-info {
+      background: #f3e8ff;
+      border-radius: 12px;
+      padding: 15px;
+      margin-top: 15px;
+      font-size: 13px;
+      font-family: monospace;
+      word-break: break-all;
+    }
   </style>
 </head>
 <body>
@@ -385,19 +401,33 @@
             </svg>
             Войти через Google
           </button>
+          
+          <div id="domainWarning" class="warning-alert" style="display: none; margin-top: 15px;">
+            ⚠️ <strong>Домен не авторизован!</strong><br>
+            Текущий домен: <span id="currentDomain"></span><br>
+            Добавьте этот домен в Firebase Console → Authentication → Settings → Authorized domains
+          </div>
+          
           <div id="authError" class="error-alert" style="display: none; margin-top: 15px;">
             ⚠️ <strong>Ошибка аутентификации!</strong><br>
             Пожалуйста, включите вход через Google в консоли Firebase.
           </div>
+          
+          <div class="domain-info" id="domainInfo">
+            <strong>🌐 Текущий домен:</strong> <span id="currentDomainDisplay">определяется...</span><br>
+            <small>Этот домен должен быть добавлен в разрешенные в Firebase Console</small>
+          </div>
+          
           <div class="instruction-box">
-            <strong>📋 Инструкция по настройке:</strong><br>
+            <strong>📋 Инструкция по настройке домена:</strong><br>
             1. Перейдите в <a href="https://console.firebase.google.com/" target="_blank">Firebase Console</a><br>
             2. Выберите проект <strong>dan123-1fcc9</strong><br>
             3. В меню слева нажмите <strong>Authentication</strong><br>
-            4. Перейдите на вкладку <strong>Sign-in methods</strong><br>
-            5. Найдите <strong>Google</strong> и включите его<br>
-            6. Нажмите <strong>Save</strong><br>
-            7. Обновите эту страницу
+            4. Перейдите на вкладку <strong>Settings</strong> (Настройки)<br>
+            5. В разделе <strong>Authorized domains</strong> нажмите <strong>Add domain</strong><br>
+            6. Добавьте домен, который показан выше<br>
+            7. Нажмите <strong>Save</strong><br>
+            8. Обновите эту страницу
           </div>
         </div>
         <div id="authState" style="display: none;">
@@ -511,6 +541,11 @@
     
     let currentUser = null;
 
+    // Показываем текущий домен
+    const currentDomain = window.location.hostname;
+    document.getElementById('currentDomainDisplay').textContent = currentDomain;
+    document.getElementById('currentDomain').textContent = currentDomain;
+
     window.processLike = async (id) => {
       const docRef = doc(db, "requests", id);
       try {
@@ -586,18 +621,25 @@
 
     document.getElementById("googleLoginBtn").addEventListener("click", async () => {
       const errorDiv = document.getElementById('authError');
+      const domainWarning = document.getElementById('domainWarning');
+      
+      errorDiv.style.display = 'none';
+      domainWarning.style.display = 'none';
+      
       try {
         const result = await signInWithPopup(auth, provider);
         currentUser = result.user;
         updateUIForAuth(currentUser);
-        errorDiv.style.display = 'none';
         console.log("✅ Успешный вход:", currentUser.email);
       } catch (error) {
         console.error("❌ Ошибка входа:", error);
-        if (error.code === 'auth/configuration-not-found') {
+        
+        if (error.code === 'auth/unauthorized-domain') {
+          domainWarning.style.display = 'block';
+        } else if (error.code === 'auth/configuration-not-found') {
           errorDiv.style.display = 'block';
         } else {
-          alert(`Ошибка входа: ${error.message}`);
+          alert(`Ошибка входа: ${error.message}\n\nКод: ${error.code}`);
         }
       }
     });
@@ -721,13 +763,11 @@
       return div.innerHTML;
     }
     
-    console.log("%c🔧 Инструкция по настройке Firebase Authentication:", "color: #ff4757; font-size: 14px; font-weight: bold");
-    console.log("1. Перейдите в Firebase Console");
-    console.log("2. Выберите проект dan123-1fcc9");
-    console.log("3. В меню слева нажмите 'Authentication'");
-    console.log("4. Перейдите на вкладку 'Sign-in methods'");
-    console.log("5. Включите вход через Google");
-    console.log("6. Нажмите 'Save' и обновите страницу");
+    console.log("%c🔧 Инструкция по настройке доменов в Firebase:", "color: #ff4757; font-size: 14px; font-weight: bold");
+    console.log(`1. Перейдите в Firebase Console → Authentication → Settings`);
+    console.log(`2. В разделе "Authorized domains" нажмите "Add domain"`);
+    console.log(`3. Добавьте домен: ${currentDomain}`);
+    console.log("4. Нажмите 'Save' и обновите страницу");
   </script>
 </body>
 </html>
