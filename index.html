@@ -33,7 +33,6 @@
       }
     }
 
-    /* Карточки */
     .card {
       background: white;
       border-radius: 20px;
@@ -67,7 +66,6 @@
       padding-left: 12px;
     }
 
-    /* Формы */
     .form-group {
       margin-bottom: 20px;
     }
@@ -119,7 +117,6 @@
       cursor: not-allowed;
     }
 
-    /* Лента */
     .feed-section {
       background: white;
       border-radius: 20px;
@@ -275,13 +272,18 @@
       color: #065f46;
     }
 
+    .error-alert {
+      background: #fee2e2;
+      border-left: 4px solid #ef4444;
+      color: #991b1b;
+    }
+
     hr {
       margin: 20px 0;
       border: none;
       border-top: 1px solid #e0e0e0;
     }
 
-    /* Auth Section */
     .auth-section {
       background: white;
       border-radius: 20px;
@@ -347,11 +349,27 @@
       opacity: 0.5;
       pointer-events: none;
     }
+
+    .instruction-box {
+      background: #e0e7ff;
+      border-radius: 12px;
+      padding: 15px;
+      margin-top: 15px;
+      font-size: 13px;
+    }
+
+    .instruction-box code {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Левая колонка -->
     <div>
       <!-- Auth Section -->
       <div class="auth-section" id="authSection">
@@ -367,6 +385,20 @@
             </svg>
             Войти через Google
           </button>
+          <div id="authError" class="error-alert" style="display: none; margin-top: 15px;">
+            ⚠️ <strong>Ошибка аутентификации!</strong><br>
+            Пожалуйста, включите вход через Google в консоли Firebase.
+          </div>
+          <div class="instruction-box">
+            <strong>📋 Инструкция по настройке:</strong><br>
+            1. Перейдите в <a href="https://console.firebase.google.com/" target="_blank">Firebase Console</a><br>
+            2. Выберите проект <strong>dan123-1fcc9</strong><br>
+            3. В меню слева нажмите <strong>Authentication</strong><br>
+            4. Перейдите на вкладку <strong>Sign-in methods</strong><br>
+            5. Найдите <strong>Google</strong> и включите его<br>
+            6. Нажмите <strong>Save</strong><br>
+            7. Обновите эту страницу
+          </div>
         </div>
         <div id="authState" style="display: none;">
           <div class="user-info">
@@ -441,7 +473,6 @@
   </div>
 
   <script type="module">
-    // Импорты Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
     import { 
       getFirestore, 
@@ -463,7 +494,6 @@
       onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
     
-    // Конфигурация Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyCTTcspjJ05PpZOFGVAZHrTq5BX_tTPQjc",
       authDomain: "dan123-1fcc9.firebaseapp.com",
@@ -474,16 +504,13 @@
       measurementId: "G-M309376PCW"
     };
 
-    // Инициализация
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
     
-    console.log("✅ Firebase инициализирован");
-    console.log("🔐 Только авторизованные пользователи могут писать в базу");
+    let currentUser = null;
 
-    // Глобальная функция для лайков
     window.processLike = async (id) => {
       const docRef = doc(db, "requests", id);
       try {
@@ -495,10 +522,6 @@
       }
     };
 
-    // Состояние авторизации
-    let currentUser = null;
-
-    // Функция обновления UI в зависимости от авторизации
     function updateUIForAuth(user) {
       const unauthState = document.getElementById('unauthState');
       const authState = document.getElementById('authState');
@@ -508,40 +531,30 @@
       const publishBtn = document.getElementById('publishBtn');
       
       if (user) {
-        // Пользователь авторизован
         unauthState.style.display = 'none';
         authState.style.display = 'block';
-        
-        // Убираем блокировку форм
         quickFormCard.classList.remove('disabled-form');
         adminCard.classList.remove('disabled-form');
         quickSubmitBtn.disabled = false;
         publishBtn.disabled = false;
         
-        // Заполняем информацию о пользователе
         document.getElementById('userName').textContent = user.displayName || 'Пользователь';
         document.getElementById('userEmail').textContent = user.email;
         if (user.photoURL) {
           document.getElementById('userAvatar').src = user.photoURL;
         }
-        
         console.log(`✅ Авторизован: ${user.email}`);
       } else {
-        // Пользователь не авторизован
         unauthState.style.display = 'block';
         authState.style.display = 'none';
-        
-        // Блокируем формы
         quickFormCard.classList.add('disabled-form');
         adminCard.classList.add('disabled-form');
         quickSubmitBtn.disabled = true;
         publishBtn.disabled = true;
-        
         console.log("❌ Пользователь не авторизован");
       }
     }
 
-    // Функция добавления записи (только для авторизованных)
     async function addRequest(name, email) {
       if (!currentUser) {
         alert("⚠️ Только авторизованные пользователи могут публиковать записи!\nПожалуйста, войдите через Google.");
@@ -566,25 +579,29 @@
         return true;
       } catch (error) {
         console.error("❌ Ошибка записи:", error);
-        alert(`Ошибка: ${error.message}\n\nПроверьте правила безопасности Firebase.`);
+        alert(`Ошибка: ${error.message}`);
         return false;
       }
     }
 
-    // Обработка входа через Google
     document.getElementById("googleLoginBtn").addEventListener("click", async () => {
+      const errorDiv = document.getElementById('authError');
       try {
         const result = await signInWithPopup(auth, provider);
         currentUser = result.user;
         updateUIForAuth(currentUser);
+        errorDiv.style.display = 'none';
         console.log("✅ Успешный вход:", currentUser.email);
       } catch (error) {
         console.error("❌ Ошибка входа:", error);
-        alert(`Ошибка входа: ${error.message}`);
+        if (error.code === 'auth/configuration-not-found') {
+          errorDiv.style.display = 'block';
+        } else {
+          alert(`Ошибка входа: ${error.message}`);
+        }
       }
     });
 
-    // Обработка выхода
     document.getElementById("logoutBtn").addEventListener("click", async () => {
       try {
         await signOut(auth);
@@ -596,13 +613,11 @@
       }
     });
 
-    // Отслеживание состояния авторизации
     onAuthStateChanged(auth, (user) => {
       currentUser = user;
       updateUIForAuth(user);
     });
 
-    // Обработка быстрой формы
     document.getElementById("quickForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       if (!currentUser) {
@@ -619,7 +634,6 @@
       }
     });
 
-    // Обработка панели управления
     document.getElementById("publishBtn").onclick = async () => {
       if (!currentUser) {
         alert("⚠️ Необходимо авторизоваться!");
@@ -643,7 +657,6 @@
       btn.textContent = "📤 Опубликовать в облако";
     };
 
-    // REAL-TIME СИНХРОНИЗАЦИЯ (доступна всем)
     const q = query(collection(db, "requests"), orderBy("timestamp", "desc"));
     
     onSnapshot(q, (snapshot) => {
@@ -691,8 +704,6 @@
           </div>
         `;
       });
-      
-      console.log(`🔄 Лента обновлена: ${postsCount} записей`);
     }, (error) => {
       console.error("❌ Ошибка onSnapshot:", error);
       document.getElementById('feed').innerHTML = `
@@ -703,7 +714,6 @@
       `;
     });
     
-    // Функция для безопасного экранирования HTML
     function escapeHtml(str) {
       if (!str) return '';
       const div = document.createElement('div');
@@ -711,23 +721,13 @@
       return div.innerHTML;
     }
     
-    // Инструкции для настройки Security Rules
-    console.log("%c🔒 НАСТРОЙКА SECURITY RULES ДЛЯ FIREBASE", "color: #ff4757; font-size: 16px; font-weight: bold");
-    console.log("%cСкопируйте и вставьте эти правила в консоль Firebase:", "color: #667eea; font-size: 12px");
-    console.log(`
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /requests/{document} {
-      allow read: if true;
-      allow create: if request.auth != null;
-      allow update: if request.resource.data.diff(request.resource.data).affectedKeys().hasOnly(['likes']);
-      allow delete: if false;
-    }
-  }
-}
-    `);
-    console.log("%c✅ Готово! Только авторизованные пользователи могут создавать записи.", "color: #10b981");
+    console.log("%c🔧 Инструкция по настройке Firebase Authentication:", "color: #ff4757; font-size: 14px; font-weight: bold");
+    console.log("1. Перейдите в Firebase Console");
+    console.log("2. Выберите проект dan123-1fcc9");
+    console.log("3. В меню слева нажмите 'Authentication'");
+    console.log("4. Перейдите на вкладку 'Sign-in methods'");
+    console.log("5. Включите вход через Google");
+    console.log("6. Нажмите 'Save' и обновите страницу");
   </script>
 </body>
 </html>
